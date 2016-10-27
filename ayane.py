@@ -1,7 +1,11 @@
+import telegram
 from telegram.ext import Updater
 from telegram.ext import CommandHandler, MessageHandler, InlineQueryHandler, Filters
 from telegram import InlineQueryResultArticle, InputTextMessageContent
 import logging
+
+from emoji import emojize
+import random
 
 updater = Updater(token=open('telegram.token').read().rstrip())
 dispatcher = updater.dispatcher
@@ -10,57 +14,52 @@ logging.basicConfig(format='%(asctime)s - %(name)s \
                     - %(levelname)s - %(message)s', level=logging.INFO)
 
 
-def start(bot, update):
+def hi(bot, update):
     bot.sendMessage(chat_id=update.message.chat_id,
-                    text="Konnichiwa. Ayane desu~")
+                    text="Konnichiwa. Ayane desu ~")
+
+
+def unknown(bot, update):
+    bot.sendMessage(chat_id=update.message.chat_id,
+                    text="*Japanese*, please %s" % emojize(":sob:", use_aliases=True),
+                    parse_mode=telegram.ParseMode.MARKDOWN)
+
 
 def ping(bot, update):
     bot.sendMessage(chat_id=update.message.chat_id,
-                    text="Pong")
+                    text="Pong %s" % emojize(":flags:", use_aliases=True))
+
 
 def echo(bot, update):
     bot.sendMessage(chat_id=update.message.chat_id, text=update.message.text)
 
 
-def caps(bot, update, args):
+def one_two_three(bot, update):
+    options = [":facepunch: グー", ":hand: パー", ":v: チョキ"]
+    bot.sendMessage(chat_id=update.message.chat_id, text=emojize(random.choice(options), use_aliases=True))
+
+
+def yell(bot, update, args):
     text_caps = ' '.join(args).upper()
     bot.sendMessage(chat_id=update.message.chat_id, text=text_caps)
 
 
-def inline_caps(bot, update):
-    query = update.inline_query.query
-    if not query:
-        return
-    results = list()
-    results.append(
-        InlineQueryResultArticle(
-            id=query.upper(),
-            title='Caps',
-            input_message_content=InputTextMessageContent(query.upper())
-        )
-    )
-    bot.answerInlineQuery(update.inline_query.id, results)
+def mr(bot, update, args):
+    pass
 
 
-def unknown(bot, update):
-    bot.sendMessage(chat_id=update.message.chat_id, text="Japanese, please ><")
+def main():
+    dispatcher.add_handler(CommandHandler('hi', hi))
+    dispatcher.add_handler(CommandHandler('hello', hi))
+    dispatcher.add_handler(CommandHandler('ping', ping))
+    dispatcher.add_handler(CommandHandler('echo', echo))
+    dispatcher.add_handler(CommandHandler('123', one_two_three))
+    dispatcher.add_handler(CommandHandler('yell', yell, pass_args=True))
 
-start_handler = CommandHandler('start', start)
-dispatcher.add_handler(start_handler)
+    dispatcher.add_handler(MessageHandler(Filters.command, unknown))
 
-ping_handler = CommandHandler('ping', ping)
-dispatcher.add_handler(ping_handler)
+    updater.start_polling()
 
-echo_handler = MessageHandler([Filters.text], echo)
-dispatcher.add_handler(echo_handler)
 
-caps_handler = CommandHandler('caps', caps, pass_args=True)
-dispatcher.add_handler(caps_handler)
-
-inline_caps_handler = InlineQueryHandler(inline_caps)
-dispatcher.add_handler(inline_caps_handler)
-
-unknown_handler = MessageHandler(Filters.command, unknown)
-dispatcher.add_handler(unknown_handler)
-
-updater.start_polling()
+if __name__ == '__main__':
+    main()
