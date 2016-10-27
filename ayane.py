@@ -16,7 +16,7 @@ logging.basicConfig(format='%(asctime)s - %(name)s \
 
 
 def hi(bot, update):
-    bot.sendMessage(chat_id=update.message.chat_id,
+    bot.sendMessage(chat_id=update.message.chat_id,/
                     text="Konnichiwa. Ayane desu ~. Type /help for my service.")
 
 
@@ -68,7 +68,7 @@ def mr_notify(bot, update, args):
             title = data['title']
             author = data['author']['username']
 
-            response = "%s: %s %s Please check MR [!%s](%s): ```%s``` owned by @%s" \
+            response = "%s: %s %s Please review MR [!%s](%s): ```%s``` owned by @%s" \
                         % (emojize(":bangbang:", use_aliases=True),
                            targets, emojize(":pray:", use_aliases=True),
                            mr_id, ref_link,
