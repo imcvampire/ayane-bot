@@ -16,7 +16,7 @@ logging.basicConfig(format='%(asctime)s - %(name)s \
 
 
 def hi(bot, update):
-    bot.sendMessage(chat_id=update.message.chat_id,/
+    bot.sendMessage(chat_id=update.message.chat_id,
                     text="Konnichiwa. Ayane desu ~. Type /help for my service.")
 
 
