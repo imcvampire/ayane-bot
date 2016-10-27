@@ -6,6 +6,7 @@ import logging
 
 from emoji import emojize
 import random
+import requests
 
 updater = Updater(token=open('telegram.token').read().rstrip())
 dispatcher = updater.dispatcher
@@ -19,10 +20,10 @@ def hi(bot, update):
                     text="Konnichiwa. Ayane desu ~")
 
 
-def unknown(bot, update):
-    bot.sendMessage(chat_id=update.message.chat_id,
-                    text="*Japanese*, please %s" % emojize(":sob:", use_aliases=True),
-                    parse_mode=telegram.ParseMode.MARKDOWN)
+# def unknown(bot, update):
+#     bot.sendMessage(chat_id=update.message.chat_id,
+#                     text="*Japanese*, please %s" % emojize(":sob:", use_aliases=True),
+#                     parse_mode=telegram.ParseMode.MARKDOWN)
 
 
 def ping(bot, update):
@@ -44,9 +45,31 @@ def yell(bot, update, args):
     bot.sendMessage(chat_id=update.message.chat_id, text=text_caps)
 
 
-def mr(bot, update, args):
-    pass
+def mr_notify(bot, update, args):
+    mr_id = args.pop(0)
+    targets = ' + '.join(args)
 
+    query = requests.get('https://gitlab.com/api/v3/projects/1259981/merge_requests?private_token=%s&iid=%s' \
+                         % (open('gitlab.token').read().rstrip(), mr_id))
+
+    if query.status_code == 200:
+        try:
+            data = query.json().pop(0)
+            ref_link = data['web_url']
+            title = data['title']
+            author = data['author']['username']
+
+            response = "%s: %s %s Please check MR [!%s](%s): ```%s``` owned by @%s" \
+                        % (emojize(":bangbang:", use_aliases=True),
+                           targets, emojize(":pray:", use_aliases=True),
+                           mr_id, ref_link,
+                           title,
+                           author)
+        except IndexError:
+            response = "`ERROR: MR not found :(`"
+
+    bot.sendMessage(chat_id=update.message.chat_id, text=response,
+                parse_mode=telegram.ParseMode.MARKDOWN)
 
 def main():
     dispatcher.add_handler(CommandHandler('hi', hi))
@@ -55,8 +78,9 @@ def main():
     dispatcher.add_handler(CommandHandler('echo', echo))
     dispatcher.add_handler(CommandHandler('123', one_two_three))
     dispatcher.add_handler(CommandHandler('yell', yell, pass_args=True))
+    dispatcher.add_handler(CommandHandler('mr', mr_notify, pass_args=True))
 
-    dispatcher.add_handler(MessageHandler(Filters.command, unknown))
+    # dispatcher.add_handler(MessageHandler(Filters.command, unknown))
 
     updater.start_polling()
 
