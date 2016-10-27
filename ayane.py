@@ -17,13 +17,22 @@ logging.basicConfig(format='%(asctime)s - %(name)s \
 
 def hi(bot, update):
     bot.sendMessage(chat_id=update.message.chat_id,
-                    text="Konnichiwa. Ayane desu ~")
+                    text="Konnichiwa. Ayane desu ~. Type /help for my service.")
 
 
 # def unknown(bot, update):
 #     bot.sendMessage(chat_id=update.message.chat_id,
 #                     text="*Japanese*, please %s" % emojize(":sob:", use_aliases=True),
 #                     parse_mode=telegram.ParseMode.MARKDOWN)
+
+
+def services(bot, update):
+    bot.sendMessage(chat_id=update.message.chat_id,
+                    text="/ping - Test my online status\n" + \
+                         "/yell - YELL ANYTHING\n" + \
+                         "/123  - Do you want to play `one two three`?\n" + \
+                         "/mr   - Notify `targets` about MR of bayo-goku",
+                    parse_mode=telegram.ParseMode.MARKDOWN)
 
 
 def ping(bot, update):
@@ -74,6 +83,7 @@ def mr_notify(bot, update, args):
 def main():
     dispatcher.add_handler(CommandHandler('hi', hi))
     dispatcher.add_handler(CommandHandler('hello', hi))
+    dispatcher.add_handler(CommandHandler('help', services))
     dispatcher.add_handler(CommandHandler('ping', ping))
     dispatcher.add_handler(CommandHandler('echo', echo))
     dispatcher.add_handler(CommandHandler('123', one_two_three))
