@@ -80,12 +80,20 @@ def mr_notify(bot, update, args):
     bot.sendMessage(chat_id=update.message.chat_id, text=response,
                 parse_mode=telegram.ParseMode.MARKDOWN)
 
+
+def mr_thank(bot, update):
+    if "merge" in update.message.text.lower():
+        bot.sendMessage(chat_id=update.message.chat_id, text="Thank you <3")
+    else:
+        bot.sendMessage(chat_id=update.message.chat_id, text="?")
+
 def main():
     dispatcher.add_handler(CommandHandler('hi', hi))
     dispatcher.add_handler(CommandHandler('hello', hi))
     dispatcher.add_handler(CommandHandler('help', services))
     dispatcher.add_handler(CommandHandler('ping', ping))
     dispatcher.add_handler(CommandHandler('echo', echo))
+    dispatcher.add_handler(MessageHandler([Filters.text], mr_thank))
     dispatcher.add_handler(CommandHandler('123', one_two_three))
     dispatcher.add_handler(CommandHandler('yell', yell, pass_args=True))
     dispatcher.add_handler(CommandHandler('mr', mr_notify, pass_args=True))
