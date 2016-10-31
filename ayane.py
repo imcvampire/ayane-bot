@@ -10,14 +10,29 @@ import emoji
 import urllib.request
 import urllib.parse
 
+
+"""
+Basic setup for paralell processes and global variables, including:
+    + logging: Error messages
+"""
 logging.basicConfig(format='%(asctime)s - %(name)s \
                     - %(levelname)s - %(message)s', level=logging.INFO)
 
 logger = logging.getLogger(__name__)
 
-##
-# Hajimemashite
-#
+
+"""
+CommandHanlder methods
+    + sudo: Some HEAVY actions like start/stop bot
+    + ping: Test online status availability
+    + hi: Basic first introduce, reply with target @username/name
+    + whoami: Get chat target's info
+    + check: Test status code of target url
+
+And some special handlers:
+    + unknown: Handle unknow commands
+    + error: Handle errors and log them
+"""
 def hi(bot, update):
     user = update.message.from_user
     identity = user.username
@@ -25,15 +40,11 @@ def hi(bot, update):
         identity = " ".join(user.firstname, user.lastname)
     update.message.reply_text("Konnichiwa @%s. Ayane desu ~" % identity)
 
-##
-# Test online status
-#
+
 def ping(bot, update):
     update.message.reply_text("Pong %s" % (emoticon(":flags:")))
 
-##
-# Get chatting user's information
-#
+
 def whoami(bot, update):
     user = update.message.from_user
     response = "ID: %s\n" % user.id + \
@@ -41,9 +52,7 @@ def whoami(bot, update):
 
     update.message.reply_text(response)
 
-##
-# Check target's status code
-#
+
 def check(bot, update, args):
     if not args:
         response = "`CommandError: /check <web_target>`"
@@ -55,27 +64,31 @@ def check(bot, update, args):
         except:
             response = "`UrlError: There is no such url ><`"
 
+    markdown_reply(update, response)
 
-    update.message.reply_text(response, parse_mode=telegram.ParseMode.MARKDOWN)
+
+def unknown(bot, update):
+    update.message.reply_text("< O_O >?")
 
 
 def error(bot, update, error):
     logger.warn('Update "%s" caused error "%s"' % (update, error))
 
-##
-# Standardize http link
-#
+"""
+Some utilities for booting Ayane's performance
+    + standardize_url: Prefix 'http' if url is raw with only pathname.com
+    + emoticon: Emojize emoji symbols with aliases
+"""
 def standardize_url(raw):
     return url if raw.startswith('http') else ('http://' + raw)
 
-##
-# Show corresponding emoji
-#
-# @param [String] emo
-#     e.g: ":smile:", ":heart:",...
-#
+
 def emoticon(emo):
     return emoji.emojize(emo, use_aliases=True)
+
+
+def markdown_reply(update, text):
+    update.message.reply_text(text, parse_mode=telegram.ParseMode.MARKDOWN)
 
 
 def main():
@@ -86,10 +99,14 @@ def main():
     dispatcher = updater.dispatcher
 
     # On different comamnds - answer in Telegram
-    dispatcher.add_handler(CommandHandler('hi', hi))
+    dispatcher.add_handler(CommandHandler('sudo', sudo, pass_args=True))
     dispatcher.add_handler(CommandHandler('ping', ping))
+    dispatcher.add_handler(CommandHandler('hi', hi))
     dispatcher.add_handler(CommandHandler('whoami', whoami))
     dispatcher.add_handler(CommandHandler('check', check, pass_args=True))
+
+    # Handle unknown commands
+    dispatcher.add_handler(MessageHandler(Filters.command, unknown))
 
     # Log all errors
     dispatcher.add_error_handler(error)
