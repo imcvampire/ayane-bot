@@ -18,12 +18,31 @@ def ping(bot, update):
 
 
 def hi(bot, update):
-	update.message.reply_text("Konnichiwa. Ayane desu ~")
+	user = get_user(bot, update)
+	identity = user.username
+	if identity is None:
+		identity = " ".join(user.firstname, user.lastname)
+
+	update.message.reply_text("Konnichiwa @%s. Ayane desu ~" % identity)
+
+
+def whoami(bot, update):
+	user = get_user(bot, update)
+	response = "ID: %s\n" % user.id + \
+			   "Username: @%s" % user.username
+
+	update.message.reply_text(response)
 
 
 def error(bot, update, error):
 	logger.warn('Update "%s" caused error "%s"' % (update, error))
 
+
+##
+# Detect chatting user
+#
+def get_user(bot, update):
+	return update.message.from_user
 
 ##
 # Show corresponding emoji
@@ -45,6 +64,7 @@ def main():
 	# On different comamnds - answer in Telegram
 	dispatcher.add_handler(CommandHandler('ping', ping))
 	dispatcher.add_handler(CommandHandler('hi', hi))
+	dispatcher.add_handler(CommandHandler('whoami', whoami))
 
 	# Log all errors
 	dispatcher.add_error_handler(error)
