@@ -14,13 +14,11 @@ logging.basicConfig(format='%(asctime)s - %(name)s \
 logger = logging.getLogger(__name__)
 
 def ping(bot, update):
-	bot.sendMessage(chat_id=update.message.chat_id,
-	text="Pong %s" % emoticon(":flags:"))
+	update.message.reply_text("Pong %s" % emoticon(":flags:"))
 
 
 def hi(bot, update):
-	bot.sendMessage(chat_id=update.message.chat_id,
-					text="Konnichiwa. Ayane desu ~")
+	update.message.reply_text("Konnichiwa. Ayane desu ~")
 
 
 def error(bot, update, error):
