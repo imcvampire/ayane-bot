@@ -7,42 +7,70 @@ from telegram.ext import Filters
 
 import logging
 import emoji
+import urllib.request
+import urllib.parse
 
 logging.basicConfig(format='%(asctime)s - %(name)s \
 					- %(levelname)s - %(message)s', level=logging.INFO)
 
 logger = logging.getLogger(__name__)
 
+##
+# Test online status
+#
 def ping(bot, update):
-	update.message.reply_text("Pong %s" % emoticon(":flags:"))
-
-
-def hi(bot, update):
-	user = get_user(bot, update)
+	user = update.message.from_user
 	identity = user.username
 	if identity is None:
 		identity = " ".join(user.firstname, user.lastname)
 
-	update.message.reply_text("Konnichiwa @%s. Ayane desu ~" % identity)
+	update.message.reply_text("Pong @%s. Ayane desu %s" \
+							  % (identity, emoticon(":flags:")))
 
-
+##
+# Get chatting user's information
+#
 def whoami(bot, update):
-	user = get_user(bot, update)
+	user = update.message.from_user
 	response = "ID: %s\n" % user.id + \
 			   "Username: @%s" % user.username
 
 	update.message.reply_text(response)
 
+##
+# Check target's status code
+#
+def test(bot, update, args):
+	if not args:
+		response = "`CommandError: /test <web_target>`"
+	else:
+		try:
+			url = standardize_url(args[0])
+			res = urllib.request.urlopen(url)
+			response = '`%d: %s`' % (res.status, res.reason)
+		except:
+			response = "`UrlError: There is no such url ><`"
+
+
+	update.message.reply_text(response, parse_mode=telegram.ParseMode.MARKDOWN)
+
 
 def error(bot, update, error):
 	logger.warn('Update "%s" caused error "%s"' % (update, error))
 
-
 ##
-# Detect chatting user
+# Standardize http link
 #
-def get_user(bot, update):
-	return update.message.from_user
+def standardize_url(raw):
+	if raw.startswith('http'):
+		url = raw
+	else:
+	    url = 'http://' + raw
+
+	if not raw.endswith('.com'):
+		url += '.com'
+
+	return url
 
 ##
 # Show corresponding emoji
@@ -63,8 +91,8 @@ def main():
 
 	# On different comamnds - answer in Telegram
 	dispatcher.add_handler(CommandHandler('ping', ping))
-	dispatcher.add_handler(CommandHandler('hi', hi))
 	dispatcher.add_handler(CommandHandler('whoami', whoami))
+	dispatcher.add_handler(CommandHandler('test', test, pass_args=True))
 
 	# Log all errors
 	dispatcher.add_error_handler(error)
