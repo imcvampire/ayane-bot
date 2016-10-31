@@ -10,29 +10,12 @@ import emoji
 import urllib.request
 import urllib.parse
 
-
-"""
-Basic setup for paralell processes and global variables, including:
-    + logging: Error messages
-"""
 logging.basicConfig(format='%(asctime)s - %(name)s \
                     - %(levelname)s - %(message)s', level=logging.INFO)
 
 logger = logging.getLogger(__name__)
 
 
-"""
-CommandHanlder methods
-    + sudo: Some HEAVY actions like start/stop bot
-    + ping: Test online status availability
-    + hi: Basic first introduce, reply with target @username/name
-    + whoami: Get chat target's info
-    + check: Test status code of target url
-
-And some special handlers:
-    + unknown: Handle unknow commands
-    + error: Handle errors and log them
-"""
 def hi(bot, update):
     user = update.message.from_user
     identity = user.username
@@ -74,11 +57,7 @@ def unknown(bot, update):
 def error(bot, update, error):
     logger.warn('Update "%s" caused error "%s"' % (update, error))
 
-"""
-Some utilities for booting Ayane's performance
-    + standardize_url: Prefix 'http' if url is raw with only pathname.com
-    + emoticon: Emojize emoji symbols with aliases
-"""
+
 def standardize_url(raw):
     return url if raw.startswith('http') else ('http://' + raw)
 
@@ -99,7 +78,6 @@ def main():
     dispatcher = updater.dispatcher
 
     # On different comamnds - answer in Telegram
-    dispatcher.add_handler(CommandHandler('sudo', sudo, pass_args=True))
     dispatcher.add_handler(CommandHandler('ping', ping))
     dispatcher.add_handler(CommandHandler('hi', hi))
     dispatcher.add_handler(CommandHandler('whoami', whoami))
