@@ -1,107 +1,64 @@
+#! /usr/bin/python3
+
 import telegram
 from telegram.ext import Updater
-from telegram.ext import CommandHandler, MessageHandler, InlineQueryHandler, Filters
-from telegram import InlineQueryResultArticle, InputTextMessageContent
+from telegram.ext import CommandHandler, MessageHandler
+from telegram.ext import Filters
+
 import logging
-
-from emoji import emojize
-import random
-import requests
-
-updater = Updater(token=open('telegram.token').read().rstrip())
-dispatcher = updater.dispatcher
+import emoji
 
 logging.basicConfig(format='%(asctime)s - %(name)s \
-                    - %(levelname)s - %(message)s', level=logging.INFO)
+					- %(levelname)s - %(message)s', level=logging.INFO)
+
+logger = logging.getLogger(__name__)
+
+def ping(bot, update):
+	bot.sendMessage(chat_id=update.message.chat_id,
+	text="Pong %s" % emoticon(":flags:"))
 
 
 def hi(bot, update):
-    bot.sendMessage(chat_id=update.message.chat_id,
-                    text="Konnichiwa. Ayane desu ~. Type /help for my service.")
+	bot.sendMessage(chat_id=update.message.chat_id,
+					text="Konnichiwa. Ayane desu ~")
 
 
-# def unknown(bot, update):
-#     bot.sendMessage(chat_id=update.message.chat_id,
-#                     text="*Japanese*, please %s" % emojize(":sob:", use_aliases=True),
-#                     parse_mode=telegram.ParseMode.MARKDOWN)
+def error(bot, update, error):
+	logger.warn('Update "%s" caused error "%s"' % (update, error))
 
 
-def services(bot, update):
-    bot.sendMessage(chat_id=update.message.chat_id,
-                    text="/ping - Test my online status\n" + \
-                         "/yell - YELL ANYTHING\n" + \
-                         "/123  - Do you want to play `one two three`?\n" + \
-                         "/mr   - Notify `targets` about MR of bayo-goku",
-                    parse_mode=telegram.ParseMode.MARKDOWN)
+##
+# Show corresponding emoji
+#
+# @param [String] emo
+# 	e.g: ":smile:", ":heart:",...
+#
+def emoticon(emo):
+	return emoji.emojize(emo, use_aliases=True)
 
-
-def ping(bot, update):
-    bot.sendMessage(chat_id=update.message.chat_id,
-                    text="Pong %s" % emojize(":flags:", use_aliases=True))
-
-
-def echo(bot, update):
-    bot.sendMessage(chat_id=update.message.chat_id, text=update.message.text)
-
-
-def one_two_three(bot, update):
-    options = [":facepunch: グー", ":hand: パー", ":v: チョキ"]
-    bot.sendMessage(chat_id=update.message.chat_id, text=emojize(random.choice(options), use_aliases=True))
-
-
-def yell(bot, update, args):
-    text_caps = ' '.join(args).upper()
-    bot.sendMessage(chat_id=update.message.chat_id, text=text_caps)
-
-
-def mr_notify(bot, update, args):
-    mr_id = args.pop(0)
-    targets = ' + '.join(args)
-
-    query = requests.get('https://gitlab.com/api/v3/projects/1259981/merge_requests?private_token=%s&iid=%s' \
-                         % (open('gitlab.token').read().rstrip(), mr_id))
-
-    if query.status_code == 200:
-        try:
-            data = query.json().pop(0)
-            ref_link = data['web_url']
-            title = data['title']
-            author = data['author']['username']
-
-            response = "%s: %s %s Please review MR [!%s](%s): ```%s``` owned by @%s" \
-                        % (emojize(":bangbang:", use_aliases=True),
-                           targets, emojize(":pray:", use_aliases=True),
-                           mr_id, ref_link,
-                           title,
-                           author)
-        except IndexError:
-            response = "`ERROR: MR not found :(`"
-
-    bot.sendMessage(chat_id=update.message.chat_id, text=response,
-                parse_mode=telegram.ParseMode.MARKDOWN)
-
-
-def mr_thank(bot, update):
-    if "merge" in update.message.text.lower():
-        bot.sendMessage(chat_id=update.message.chat_id, text="Thank you <3")
-    else:
-        bot.sendMessage(chat_id=update.message.chat_id, text="?")
 
 def main():
-    dispatcher.add_handler(CommandHandler('hi', hi))
-    dispatcher.add_handler(CommandHandler('hello', hi))
-    dispatcher.add_handler(CommandHandler('help', services))
-    dispatcher.add_handler(CommandHandler('ping', ping))
-    dispatcher.add_handler(CommandHandler('echo', echo))
-    dispatcher.add_handler(MessageHandler([Filters.text], mr_thank))
-    dispatcher.add_handler(CommandHandler('123', one_two_three))
-    dispatcher.add_handler(CommandHandler('yell', yell, pass_args=True))
-    dispatcher.add_handler(CommandHandler('mr', mr_notify, pass_args=True))
+	# Create the EventHandler and pass bot's token
+	updater = Updater(token=open('telegram.token').read().rstrip())
 
-    # dispatcher.add_handler(MessageHandler(Filters.command, unknown))
+	# Get the dispatcher to register handlers
+	dispatcher = updater.dispatcher
 
-    updater.start_polling()
+	# On different comamnds - answer in Telegram
+	dispatcher.add_handler(CommandHandler('ping', ping))
+	dispatcher.add_handler(CommandHandler('hi', hi))
+
+	# Log all errors
+	dispatcher.add_error_handler(error)
+
+	# Start the bot
+	updater.start_polling()
+
+	# Run the bot until the you presses Ctrl-C or the process receives SIGINT,
+	# SIGTERM or SIGABRT. This should be used most of the time, since
+	# start_polling() is non-blocking and will stop the bot gracefully.
+	updater.idle()
 
 
 if __name__ == '__main__':
-    main()
+	main()
