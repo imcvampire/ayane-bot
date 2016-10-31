@@ -16,16 +16,20 @@ logging.basicConfig(format='%(asctime)s - %(name)s \
 logger = logging.getLogger(__name__)
 
 ##
-# Test online status
+# Hajimemashite
 #
-def ping(bot, update):
+def hi(bot, update):
     user = update.message.from_user
     identity = user.username
     if identity is None:
         identity = " ".join(user.firstname, user.lastname)
+    update.message.reply_text("Konnichiwa @%s. Ayane desu ~" % identity)
 
-    update.message.reply_text("Pong @%s. Ayane desu %s" \
-                              % (identity, emoticon(":flags:")))
+##
+# Test online status
+#
+def ping(bot, update):
+    update.message.reply_text("Pong %s" % (emoticon(":flags:")))
 
 ##
 # Get chatting user's information
@@ -40,9 +44,9 @@ def whoami(bot, update):
 ##
 # Check target's status code
 #
-def test(bot, update, args):
+def check(bot, update, args):
     if not args:
-        response = "`CommandError: /test <web_target>`"
+        response = "`CommandError: /check <web_target>`"
     else:
         try:
             url = standardize_url(args[0])
@@ -62,21 +66,13 @@ def error(bot, update, error):
 # Standardize http link
 #
 def standardize_url(raw):
-    if raw.startswith('http'):
-        url = raw
-    else:
-        url = 'http://' + raw
-
-    if not raw.endswith('.com'):
-        url += '.com'
-
-    return url
+    return url if raw.startswith('http') else ('http://' + raw)
 
 ##
 # Show corresponding emoji
 #
 # @param [String] emo
-# 	e.g: ":smile:", ":heart:",...
+#     e.g: ":smile:", ":heart:",...
 #
 def emoticon(emo):
     return emoji.emojize(emo, use_aliases=True)
@@ -90,9 +86,10 @@ def main():
     dispatcher = updater.dispatcher
 
     # On different comamnds - answer in Telegram
+    dispatcher.add_handler(CommandHandler('hi', hi))
     dispatcher.add_handler(CommandHandler('ping', ping))
     dispatcher.add_handler(CommandHandler('whoami', whoami))
-    dispatcher.add_handler(CommandHandler('test', test, pass_args=True))
+    dispatcher.add_handler(CommandHandler('check', check, pass_args=True))
 
     # Log all errors
     dispatcher.add_error_handler(error)
