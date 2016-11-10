@@ -51,7 +51,7 @@ def check(bot, update, args):
         except:
             response = "UrlError: There is no such url ><"
 
-    markdown_reply(update, response)
+    update.message.reply_text(response)
 
 
 def mr(bot, update, args):
