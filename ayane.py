@@ -9,11 +9,15 @@ import logging
 import emoji
 import urllib.request
 import urllib.parse
+import requests
 
 logging.basicConfig(format='%(asctime)s - %(name)s \
                     - %(levelname)s - %(message)s', level=logging.INFO)
 
 logger = logging.getLogger(__name__)
+
+GITLAB_API_URL = "https://gitlab.com/api/v3/projects"
+GITLAB_KEY = open('gitlab.token').read().rstrip()
 
 
 def hi(bot, update):
@@ -38,20 +42,41 @@ def whoami(bot, update):
 
 def check(bot, update, args):
     if not args:
-        response = "`CommandError: /check <web_target>`"
+        response = "CommandError: /check <web_target>"
     else:
         try:
             url = standardize_url(args[0])
             res = urllib.request.urlopen(url)
-            response = '`%d: %s`' % (res.status, res.reason)
+            response = '%d: %s' % (res.status, res.reason)
         except:
-            response = "`UrlError: There is no such url ><`"
+            response = "UrlError: There is no such url ><"
 
     markdown_reply(update, response)
 
 
+def mr(bot, update, args):
+    if not args:
+        response = "CommandError: /mr <list/review/merge> [opts]"
+    else:
+        cmd = args[0]
+        project = "bayo/bayo-goku".replace("/", "%2F")
+
+        if cmd == 'list':
+            r = requests.get("%s/%s/%s?private_token=%s&%s" % \
+                             (GITLAB_API_URL, project, 'merge_requests', GITLAB_KEY,
+                              'state=opened'))
+            res = r.json()
+            response = "\n".join(map(mr_list_info, res))
+
+    update.message.reply_text(response)
+
+
+def mr_list_info(mr):
+    return "%s: %s" % (mr['iid'], mr['title'])
+
+
 def unknown(bot, update):
-    update.message.reply_text("< O_O >?")
+    update.message.reply_text("¯\_(ツ) _/¯")
 
 
 def error(bot, update, error):
@@ -66,10 +91,6 @@ def emoticon(emo):
     return emoji.emojize(emo, use_aliases=True)
 
 
-def markdown_reply(update, text):
-    update.message.reply_text(text, parse_mode=telegram.ParseMode.MARKDOWN)
-
-
 def main():
     # Create the EventHandler and pass bot's token
     updater = Updater(token=open('telegram.token').read().rstrip())
@@ -82,6 +103,7 @@ def main():
     dispatcher.add_handler(CommandHandler('hi', hi))
     dispatcher.add_handler(CommandHandler('whoami', whoami))
     dispatcher.add_handler(CommandHandler('check', check, pass_args=True))
+    dispatcher.add_handler(CommandHandler('mr', mr, pass_args=True))
 
     # Handle unknown commands
     dispatcher.add_handler(MessageHandler(Filters.command, unknown))
