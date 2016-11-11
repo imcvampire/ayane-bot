@@ -62,9 +62,11 @@ def mr(bot, update, args):
         project = "bayo/bayo-goku".replace("/", "%2F")
 
         if cmd == 'list':
-            r = requests.get("%s/%s/%s?private_token=%s&%s" % \
-                             (GITLAB_API_URL, project, 'merge_requests', GITLAB_KEY,
-                              'state=opened'))
+            query_url = "%s/%s/%s?private_token=%s&%s" % \
+                        (GITLAB_API_URL, project, 'merge_requests', GITLAB_KEY,
+                        'state=opened')
+            r = requests.get(query_url)
+            logging.info('GET: %s' % query_url)
             res = r.json()
             response = "\n".join(map(mr_list_info, res))
 
@@ -72,7 +74,7 @@ def mr(bot, update, args):
 
 
 def mr_list_info(mr):
-    return "%s: %s" % (mr['iid'], mr['title'])
+    return "%s (@%s): %s" % (mr['iid'], mr['author']['username'], mr['title'])
 
 
 def unknown(bot, update):
