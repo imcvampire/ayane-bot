@@ -74,9 +74,15 @@ def mr(bot, update, args):
                 response = "CommandError: /mr review <MR's id> [reviewers]"
             else:
                 mr_id = args[1]
-                query_url = query_url = "%s/%s/%s?private_token=%s&%s&%s" % \
-                            (GITLAB_API_URL, project, 'merge_requests', GITLAB_KEY,
-                            'state=opened', 'iid=%s' % mr_id)
+                if mr_id == "latest":
+                    query_url = "%s/%s/%s?private_token=%s&%s" % \
+                                (GITLAB_API_URL, project, 'merge_requests', GITLAB_KEY,
+                                'state=opened')
+                else:
+                    query_url = query_url = "%s/%s/%s?private_token=%s&%s&%s" % \
+                                (GITLAB_API_URL, project, 'merge_requests', GITLAB_KEY,
+                                'state=opened', 'iid=%s' % mr_id)
+
                 r = requests.get(query_url)
                 logging.info('GET: %s' % query_url)
 
@@ -84,7 +90,7 @@ def mr(bot, update, args):
                 reviewers = " ".join(args[2:])
                 response = "%s %s please review MR %s (%s):\n%s\n\nOwned by @%s" % \
                            (reviewers, emoticon(':pray:'),
-                            mr_id, mr_info['web_url'], mr_info['title'],
+                            mr_info['iid'], mr_info['web_url'], mr_info['title'],
                             mr_info['author']['username'])
         else:
             response = "CommandError: /mr <list/review/merge> [options]"
