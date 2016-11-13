@@ -56,7 +56,7 @@ def check(bot, update, args):
 
 def mr(bot, update, args):
     if not args:
-        response = "CommandError: /mr <list/review/merge> [opts]"
+        response = "CommandError: /mr <list/review/merge> [options]"
     else:
         cmd = args[0]
         project = "bayo/bayo-goku".replace("/", "%2F")
@@ -69,6 +69,25 @@ def mr(bot, update, args):
             logging.info('GET: %s' % query_url)
             res = r.json()
             response = "\n".join(map(mr_list_info, res))
+        elif cmd == 'review':
+            if len(args) < 4:
+                response = "CommandError: /mr review <MR's id> [reviewers]"
+            else:
+                mr_id = args[1]
+                query_url = query_url = "%s/%s/%s?private_token=%s&%s&%s" % \
+                            (GITLAB_API_URL, project, 'merge_requests', GITLAB_KEY,
+                            'state=opened', 'iid=%s' % mr_id)
+                r = requests.get(query_url)
+                logging.info('GET: %s' % query_url)
+
+                mr_info = r.json()[0]
+                reviewers = " ".join(args[2:])
+                response = "%s %s please review MR %s (%s):\n%s\n\nOwned by @%s" % \
+                           (reviewers, emoticon(':pray:'),
+                            mr_id, mr_info['web_url'], mr_info['title'],
+                            mr_info['author']['username'])
+        else:
+            response = "CommandError: /mr <list/review/merge> [options]"
 
     update.message.reply_text(response)
 
