@@ -70,7 +70,7 @@ def mr(bot, update, args):
             res = r.json()
             response = "\n".join(map(mr_list_info, res))
         elif cmd == 'review':
-            if len(args) < 4:
+            if len(args) < 3:
                 response = "CommandError: /mr review <MR's id> [reviewers]"
             else:
                 mr_id = args[1]
