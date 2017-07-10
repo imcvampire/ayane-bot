@@ -17,7 +17,7 @@ logging.basicConfig(format='%(asctime)s - %(name)s \
 logger = logging.getLogger(__name__)
 
 
-## Utitlies
+## Utilities
 @autoreload
 def member_info(mem):
     return "%s: %s" % (mem['username'], mem['elo'])
