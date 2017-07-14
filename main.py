@@ -6,8 +6,7 @@ from telegram.ext import Updater
 from telegram.ext import CommandHandler, MessageHandler
 from telegram.ext import Filters
 
-
-BILAC = 'https://bilac.theanht1.me/api/v2'
+from modules.bilac import Bilac
 
 
 logging.basicConfig(format='%(asctime)s - %(name)s \
@@ -17,29 +16,24 @@ logger = logging.getLogger(__name__)
 
 
 ## Utilities
-def member_info(mem):
-    return "%s: %s" % (mem['username'], mem['elo'])
+def error(bot, update, error):
+    logger.warn('Update "%s" caused error "%s"' % (update, error))
 
 
 ## Handlers
 def unknown(bot, update):
     bot.send_message(chat_id=update.message.chat_id, text="¯\_(ツ) _/¯")
 
-def error(bot, update, error):
-    logger.warn('Update "%s" caused error "%s"' % (update, error))
-
 
 ## Responses
 def start(bot, update):
     bot.send_message(chat_id=update.message.chat_id, text="At your service, sir!")
 
+def ping(bot, update):
     bot.send_message(chat_id=update.message.chat_id, text="Pong")
 
 def elo(bot, update):
-    r = requests.get("%s/members?sort=-elo" % BILAC)
-    res= r.json()
-    rep = "\n".join(map(member_info, res))
-
+    rep = Bilac().elo()
     bot.send_message(chat_id=update.message.chat_id, text=rep)
 
 
