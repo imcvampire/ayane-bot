@@ -9,5 +9,5 @@ pip install -r requirements.txt
 
 ## Deploy
 ```
-python ayane.py
+python main.py
 ```
