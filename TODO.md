@@ -1,0 +1,1 @@
++ [ ] Inline mode with suggestion

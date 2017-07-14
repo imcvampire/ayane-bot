@@ -1,5 +1,4 @@
 import logging
-import requests
 
 import telegram
 from telegram.ext import Updater
