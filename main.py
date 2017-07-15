@@ -54,7 +54,7 @@ def elo(bot, update):
 
 def add_quote(bot, update, args):
     q = Quote(DB_CUR)
-    bot.send_message(chat_id=update.message.chat_id, text=q.db_cur.fetchone())
+    bot.send_message(chat_id=update.message.chat_id, text=args[0])
 
 
 if __name__ == '__main__':
