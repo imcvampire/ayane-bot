@@ -1,6 +1,5 @@
 import logging
 import yaml
-import psycopg2
 import os
 import time
 import sys
@@ -9,6 +8,10 @@ import telegram
 from telegram.ext import Updater
 from telegram.ext import CommandHandler, MessageHandler
 from telegram.ext import Filters
+import psycopg2
+import psycopg2.extras
+
+from plugins.history import History
 
 from modules.bilac import Bilac
 from modules.quote import Quote
@@ -31,12 +34,22 @@ DB_CONN = psycopg2.connect("host=%s dbname=%s user=%s password=%s" % (
                            DB['dbname'],
                            DB['user'],
                            DB['password']))
-DB_CUR = DB_CONN.cursor()
+DB_CUR = DB_CONN.cursor(cursor_factory=psycopg2.extras.DictCursor)
+
+## History tricks
+history = History(DB_CONN, DB_CUR)
+flag = None
 
 
 ## Utilities
 def error(bot, update, error):
     logger.warn('Update "%s" caused error "%s"' % (update, error))
+
+def get_command():
+    """Get the (root, command) of flag"""
+    if flag == None:
+        return None, None
+    return flag.split("/")
 
 
 ## Handlers
@@ -44,6 +57,28 @@ def restart(bot, update):
     bot.send_message(chat_id=update.message.chat_id, text="I am restarting...")
     time.sleep(0.2)
     os.execl(sys.executable, sys.executable, *sys.argv)
+
+def response(bot, update):
+    """For handling response of the user"""
+    global flag
+    root, cmd = get_command()
+
+    if root == "addquote":
+        q = Quote(DB_CONN, DB_CUR)
+        if cmd == "author":
+            history.remember(update.message.text, flag)
+            flag = "addquote/content"
+            bot.send_message(chat_id=update.message.chat_id, text="Provide me the quote.")
+            return
+        elif cmd == "content":
+            author = history.latest()['message']
+
+            history.remember(update.message.text, flag)
+            flag = None
+
+            q.add_quote(author, update.message.text)
+            bot.send_message(chat_id=update.message.chat_id, text=q.get_latest_quote())
+            return
 
 def unknown(bot, update):
     bot.send_message(chat_id=update.message.chat_id, text="¯\_(ツ) _/¯")
@@ -60,9 +95,11 @@ def elo(bot, update):
     rep = Bilac().elo()
     bot.send_message(chat_id=update.message.chat_id, text=rep)
 
-def add_quote(bot, update, args):
-    q = Quote(DB_CUR)
-    bot.send_message(chat_id=update.message.chat_id, text=args[0])
+def add_quote(bot, update):
+    global flag
+    if flag == None:
+        flag = "addquote/author"
+        bot.send_message(chat_id=update.message.chat_id, text="Provide me name of the author.")
 
 
 if __name__ == '__main__':
@@ -77,7 +114,10 @@ if __name__ == '__main__':
     dispatcher.add_handler(CommandHandler('restart', restart))
     dispatcher.add_handler(CommandHandler('ping', ping))
     dispatcher.add_handler(CommandHandler('elo', elo))
-    dispatcher.add_handler(CommandHandler('add', add_quote, pass_args=True))
+    dispatcher.add_handler(CommandHandler('addquote', add_quote))
+
+    # Message Handler
+    dispatcher.add_handler(MessageHandler(Filters.text, response))
 
     # Handle unknown commands
     dispatcher.add_handler(MessageHandler(Filters.command, unknown))
