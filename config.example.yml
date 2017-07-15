@@ -1,0 +1,5 @@
+db:
+    host: localhost
+    dbname: ayaneru
+    user: einstein
+    password: e=mc2
