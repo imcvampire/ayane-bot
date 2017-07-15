@@ -1,6 +1,9 @@
 import logging
 import yaml
 import psycopg2
+import os
+import time
+import sys
 
 import telegram
 from telegram.ext import Updater
@@ -37,6 +40,11 @@ def error(bot, update, error):
 
 
 ## Handlers
+def restart(bot, update):
+    bot.send_message(chat_id=update.message.chat_id, text="I am restarting...")
+    time.sleep(0.2)
+    os.execl(sys.executable, sys.executable, *sys.argv)
+
 def unknown(bot, update):
     bot.send_message(chat_id=update.message.chat_id, text="¯\_(ツ) _/¯")
 
@@ -66,6 +74,7 @@ if __name__ == '__main__':
 
     # On different comamnds - answer in Telegram
     dispatcher.add_handler(CommandHandler('start', start))
+    dispatcher.add_handler(CommandHandler('restart', restart))
     dispatcher.add_handler(CommandHandler('ping', ping))
     dispatcher.add_handler(CommandHandler('elo', elo))
     dispatcher.add_handler(CommandHandler('add', add_quote, pass_args=True))
