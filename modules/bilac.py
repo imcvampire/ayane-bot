@@ -14,5 +14,5 @@ class Bilac:
 
     def elo(self):
         r = requests.get("%s/members?sort=-elo" % self.url)
-        res= r.json()
+        res = r.json()
         return map(member_info, res)

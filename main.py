@@ -76,7 +76,7 @@ def response(bot, update):
             history.remember(update.message.text, flag)
             flag = None
 
-            q.add_quote(author, update.message.text)
+            q.addquote(author, update.message.text)
             bot.send_message(chat_id=update.message.chat_id, text=q.get_latest_quote())
             return
 
@@ -92,14 +92,18 @@ def ping(bot, update):
     bot.send_message(chat_id=update.message.chat_id, text="Pong")
 
 def elo(bot, update):
-    rep = Bilac().elo()
+    rep = "\n".join(Bilac().elo())
     bot.send_message(chat_id=update.message.chat_id, text=rep)
 
-def add_quote(bot, update):
+def addquote(bot, update):
     global flag
     if flag == None:
         flag = "addquote/author"
         bot.send_message(chat_id=update.message.chat_id, text="Provide me name of the author.")
+
+def listquotes(bot, update):
+    q = Quote(DB_CONN, DB_CUR)
+    bot.send_message(chat_id=update.message.chat_id, text="\n".join(q.list_quotes()))
 
 
 if __name__ == '__main__':
@@ -114,7 +118,8 @@ if __name__ == '__main__':
     dispatcher.add_handler(CommandHandler('restart', restart))
     dispatcher.add_handler(CommandHandler('ping', ping))
     dispatcher.add_handler(CommandHandler('elo', elo))
-    dispatcher.add_handler(CommandHandler('addquote', add_quote))
+    dispatcher.add_handler(CommandHandler('addquote', addquote))
+    dispatcher.add_handler(CommandHandler('listquotes', listquotes))
 
     # Message Handler
     dispatcher.add_handler(MessageHandler(Filters.text, response))

@@ -1,5 +1,5 @@
 def quote_info(q):
-    return '"%s" - %s' % (q['content'], q['author'])
+    return '[%s] "%s" - %s' % (q['id'], q['content'], q['author'])
 
 
 class Quote:
@@ -16,3 +16,8 @@ class Quote:
     def get_latest_quote(self):
         self.db_cur.execute("SELECT * FROM quotes ORDER BY created_at DESC LIMIT(1);")
         return quote_info(self.db_cur.fetchone())
+
+    def list_quotes(self):
+        self.db_cur.execute("SELECT * FROM quotes ORDER BY created_at DESC;")
+        quotes = self.db_cur.fetchall()
+        return map(quote_info, quotes)
