@@ -116,9 +116,8 @@ def elo(bot, update):
 
 def addquote(bot, update):
     global flag
-    if flag == None:
-        flag = "addquote/author"
-        bot.send_message(chat_id=update.message.chat_id, text="Provide me name of the author.")
+    flag = "addquote/author"
+    bot.send_message(chat_id=update.message.chat_id, text="Provide me name of the author.")
 
 def listquotes(bot, update, args):
     q = Quote(DB_CONN, DB_CUR)
