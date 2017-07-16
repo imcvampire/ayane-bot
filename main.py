@@ -40,6 +40,22 @@ DB_CUR = DB_CONN.cursor(cursor_factory=psycopg2.extras.DictCursor)
 history = History(DB_CONN, DB_CUR)
 flag = None
 
+## Help
+HELP = """At your service, sir.
+
+/ping - check my connection
+
+BILAC
+/elo - Check members' elo
+
+QUOTE
+/addquote - create a new quote with (author, content)
+/listquotes [author] - List created quotes
+/randomquote [author] - Random a quote
+/getquote id - Get a quote with id
+/deletequote id - Delete a quote with id
+"""
+
 
 ## Utilities
 def error(bot, update, error):
@@ -86,7 +102,10 @@ def unknown(bot, update):
 
 ## Responses
 def start(bot, update):
-    bot.send_message(chat_id=update.message.chat_id, text="At your service, sir!")
+    bot.send_message(chat_id=update.message.chat_id, text=HELP)
+
+def helpme(bot, update):
+    bot.send_message(chat_id=update.message.chat_id, text=HELP)
 
 def ping(bot, update):
     bot.send_message(chat_id=update.message.chat_id, text="Pong")
@@ -148,6 +167,7 @@ if __name__ == '__main__':
 
     # On different comamnds - answer in Telegram
     dispatcher.add_handler(CommandHandler('start', start))
+    dispatcher.add_handler(CommandHandler('help', helpme))
     dispatcher.add_handler(CommandHandler('restart', restart))
     dispatcher.add_handler(CommandHandler('ping', ping))
     dispatcher.add_handler(CommandHandler('elo', elo))
