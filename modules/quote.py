@@ -39,7 +39,7 @@ class Quote:
         if len(quotes) == 0:
             return "Not found"
         else:
-            return map(quote_info, quotes)
+            return "\n".join(map(quote_info, quotes))
 
     def quote(self, qid):
         self.db_cur.execute("SELECT * FROM quotes WHERE id=%s LIMIT(1);" % qid)

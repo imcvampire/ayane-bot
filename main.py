@@ -127,7 +127,7 @@ def listquotes(bot, update, args):
     else:
         author = args[0]
 
-    bot.send_message(chat_id=update.message.chat_id, text="\n".join(q.list_quotes(author)))
+    bot.send_message(chat_id=update.message.chat_id, text=q.list_quotes(author))
 
 def randomquote(bot, update, args):
     q = Quote(DB_CONN, DB_CUR)
