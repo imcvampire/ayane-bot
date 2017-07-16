@@ -76,7 +76,7 @@ def response(bot, update):
             history.remember(update.message.text, flag)
             flag = None
 
-            q.addquote(author, update.message.text)
+            q.add_quote(author, update.message.text)
             bot.send_message(chat_id=update.message.chat_id, text=q.latest_quote())
             return
 
@@ -101,13 +101,23 @@ def addquote(bot, update):
         flag = "addquote/author"
         bot.send_message(chat_id=update.message.chat_id, text="Provide me name of the author.")
 
-def listquotes(bot, update):
+def listquotes(bot, update, args):
     q = Quote(DB_CONN, DB_CUR)
-    bot.send_message(chat_id=update.message.chat_id, text="\n".join(q.list_quotes()))
+    if len(args) == 0:
+        author = None
+    else:
+        author = args[0]
+
+    bot.send_message(chat_id=update.message.chat_id, text="\n".join(q.list_quotes(author)))
 
 def randomquote(bot, update, args):
     q = Quote(DB_CONN, DB_CUR)
-    bot.send_message(chat_id=update.message.chat_id, text=q.random_quote())
+    if len(args) == 0:
+        author = None
+    else:
+        author = args[0]
+
+    bot.send_message(chat_id=update.message.chat_id, text=q.random_quote(author))
 
 
 if __name__ == '__main__':
@@ -123,7 +133,7 @@ if __name__ == '__main__':
     dispatcher.add_handler(CommandHandler('ping', ping))
     dispatcher.add_handler(CommandHandler('elo', elo))
     dispatcher.add_handler(CommandHandler('addquote', addquote))
-    dispatcher.add_handler(CommandHandler('listquotes', listquotes))
+    dispatcher.add_handler(CommandHandler('listquotes', listquotes, pass_args=True))
     dispatcher.add_handler(CommandHandler('randomquote', randomquote, pass_args=True))
 
     # Message Handler

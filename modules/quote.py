@@ -21,8 +21,7 @@ class Quote:
         if author == None:
             self.db_cur.execute("SELECT * FROM quotes ORDER BY random()")
         else:
-            pass
-            # self.db_cur.execute("SELECT * FROM quotes ")
+            self.db_cur.execute("SELECT * FROM quotes WHERE author='%s' ORDER BY random()" % author)
 
         quote = self.db_cur.fetchone()
         if quote == None:
@@ -30,7 +29,14 @@ class Quote:
         else:
             return quote_info(quote)
 
-    def list_quotes(self):
-        self.db_cur.execute("SELECT * FROM quotes ORDER BY created_at DESC;")
+    def list_quotes(self, author=None):
+        if author == None:
+            self.db_cur.execute("SELECT * FROM quotes ORDER BY created_at DESC;")
+        else:
+            self.db_cur.execute("SELECT * FROM quotes WHERE author='%s' ORDER BY created_at DESC" % author)
+
         quotes = self.db_cur.fetchall()
-        return map(quote_info, quotes)
+        if len(quotes) == 0:
+            return "Not found"
+        else:
+            return map(quote_info, quotes)
