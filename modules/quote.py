@@ -41,6 +41,14 @@ class Quote:
         else:
             return map(quote_info, quotes)
 
+    def quote(self, qid):
+        self.db_cur.execute("SELECT * FROM quotes WHERE id=%s LIMIT(1);" % qid)
+        q = self.db_cur.fetchone()
+        if q == None:
+            return "Not found"
+        else:
+            return quote_info(q)
+
     def delete_quote(self, qid):
         self.db_cur.execute("DELETE FROM quotes WHERE id=%s" % qid)
         self.db_conn.commit()

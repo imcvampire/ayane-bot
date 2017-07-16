@@ -54,7 +54,7 @@ def get_command():
 
 ## Handlers
 def restart(bot, update):
-    bot.send_message(chat_id=update.message.chat_id, text="I am restarting...")
+    bot.send_message(chat_id=update.message.chat_id, text="Restarting...")
     time.sleep(0.2)
     os.execl(sys.executable, sys.executable, *sys.argv)
 
@@ -119,6 +119,15 @@ def randomquote(bot, update, args):
 
     bot.send_message(chat_id=update.message.chat_id, text=q.random_quote(author))
 
+def getquote(bot, update, args):
+    q = Quote(DB_CONN, DB_CUR)
+    if len(args) == 0:
+        bot.send_message(chat_id=update.message.chat_id, text="ERROR: /getquote id")
+        return
+    else:
+        qid = args[0]
+        bot.send_message(chat_id=update.message.chat_id, text=q.quote(qid))
+
 def deletequote(bot, update, args):
     q = Quote(DB_CONN, DB_CUR)
     if len(args) == 0:
@@ -145,6 +154,7 @@ if __name__ == '__main__':
     dispatcher.add_handler(CommandHandler('addquote', addquote))
     dispatcher.add_handler(CommandHandler('listquotes', listquotes, pass_args=True))
     dispatcher.add_handler(CommandHandler('randomquote', randomquote, pass_args=True))
+    dispatcher.add_handler(CommandHandler('getquote', getquote, pass_args=True))
     dispatcher.add_handler(CommandHandler('deletequote', deletequote, pass_args=True))
 
     # Message Handler
