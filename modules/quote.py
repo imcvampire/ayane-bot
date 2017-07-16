@@ -1,5 +1,5 @@
 def quote_info(q):
-    return '[%s] "%s" - %s' % (q['id'], q['content'], q['author'])
+    return '(%s) *%s* - %s' % (q['id'], q['content'], q['author'])
 
 
 class Quote:

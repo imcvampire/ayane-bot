@@ -93,7 +93,7 @@ def response(bot, update):
             flag = None
 
             q.add_quote(author, update.message.text)
-            bot.send_message(chat_id=update.message.chat_id, text=q.latest_quote())
+            bot.send_message(chat_id=update.message.chat_id, text=q.latest_quote(), parse_mode=telegram.ParseMode.MARKDOWN)
             return
 
 def unknown(bot, update):
@@ -126,7 +126,7 @@ def listquotes(bot, update, args):
     else:
         author = args[0]
 
-    bot.send_message(chat_id=update.message.chat_id, text=q.list_quotes(author))
+    bot.send_message(chat_id=update.message.chat_id, text=q.list_quotes(author), parse_mode=telegram.ParseMode.MARKDOWN)
 
 def randomquote(bot, update, args):
     q = Quote(DB_CONN, DB_CUR)
@@ -135,7 +135,7 @@ def randomquote(bot, update, args):
     else:
         author = args[0]
 
-    bot.send_message(chat_id=update.message.chat_id, text=q.random_quote(author))
+    bot.send_message(chat_id=update.message.chat_id, text=q.random_quote(author), parse_mode=telegram.ParseMode.MARKDOWN)
 
 def getquote(bot, update, args):
     q = Quote(DB_CONN, DB_CUR)
@@ -144,7 +144,7 @@ def getquote(bot, update, args):
         return
     else:
         qid = args[0]
-        bot.send_message(chat_id=update.message.chat_id, text=q.quote(qid))
+        bot.send_message(chat_id=update.message.chat_id, text=q.quote(qid), parse_mode=telegram.ParseMode.MARKDOWN)
 
 def deletequote(bot, update, args):
     q = Quote(DB_CONN, DB_CUR)
@@ -180,7 +180,7 @@ if __name__ == '__main__':
     dispatcher.add_handler(MessageHandler(Filters.text, response))
 
     # Handle unknown commands
-    dispatcher.add_handler(MessageHandler(Filters.command, unknown))
+    # dispatcher.add_handler(MessageHandler(Filters.command, unknown))
 
     # Log all errors
     dispatcher.add_error_handler(error)
