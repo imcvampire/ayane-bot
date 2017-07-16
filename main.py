@@ -77,7 +77,7 @@ def response(bot, update):
             flag = None
 
             q.addquote(author, update.message.text)
-            bot.send_message(chat_id=update.message.chat_id, text=q.get_latest_quote())
+            bot.send_message(chat_id=update.message.chat_id, text=q.latest_quote())
             return
 
 def unknown(bot, update):
@@ -105,6 +105,10 @@ def listquotes(bot, update):
     q = Quote(DB_CONN, DB_CUR)
     bot.send_message(chat_id=update.message.chat_id, text="\n".join(q.list_quotes()))
 
+def randomquote(bot, update, args):
+    q = Quote(DB_CONN, DB_CUR)
+    bot.send_message(chat_id=update.message.chat_id, text=q.random_quote())
+
 
 if __name__ == '__main__':
     # Create the EventHandler and pass bot's token
@@ -120,6 +124,7 @@ if __name__ == '__main__':
     dispatcher.add_handler(CommandHandler('elo', elo))
     dispatcher.add_handler(CommandHandler('addquote', addquote))
     dispatcher.add_handler(CommandHandler('listquotes', listquotes))
+    dispatcher.add_handler(CommandHandler('randomquote', randomquote, pass_args=True))
 
     # Message Handler
     dispatcher.add_handler(MessageHandler(Filters.text, response))

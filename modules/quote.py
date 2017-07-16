@@ -13,9 +13,22 @@ class Quote:
                             (author, content))
         self.db_conn.commit()
 
-    def get_latest_quote(self):
+    def latest_quote(self):
         self.db_cur.execute("SELECT * FROM quotes ORDER BY created_at DESC LIMIT(1);")
         return quote_info(self.db_cur.fetchone())
+
+    def random_quote(self, author=None):
+        if author == None:
+            self.db_cur.execute("SELECT * FROM quotes ORDER BY random()")
+        else:
+            pass
+            # self.db_cur.execute("SELECT * FROM quotes ")
+
+        quote = self.db_cur.fetchone()
+        if quote == None:
+            return "Not found"
+        else:
+            return quote_info(quote)
 
     def list_quotes(self):
         self.db_cur.execute("SELECT * FROM quotes ORDER BY created_at DESC;")
