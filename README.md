@@ -5,7 +5,15 @@
 pip install -r requirements.txt
 ```
 
-+ Contact `@BotFather` for getting authorization token, and store in a file called `telegram.token`.
++ Config:
+```sh
+cp config.example.yml config.yml
+
+# config.yml
+token # Contact @BotFather for gaining access token
+db # Config for Postgresql database
+```
+
 
 ## Deploy
 ```sh

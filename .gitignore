@@ -2,8 +2,5 @@
 __pycache__
 *.pyc
 
-# Token
-*.token
-
 # Config
 config.yml

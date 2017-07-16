@@ -141,7 +141,7 @@ def deletequote(bot, update, args):
 
 if __name__ == '__main__':
     # Create the EventHandler and pass bot's token
-    updater = Updater(token=open('telegram.token').read().rstrip())
+    updater = Updater(token=CONFIG['token'])
 
     # Get the dispatcher to register handlers
     dispatcher = updater.dispatcher

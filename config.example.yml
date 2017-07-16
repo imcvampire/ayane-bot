@@ -1,3 +1,5 @@
+token: super_secret_token_made_by_botfather
+
 db:
     host: localhost
     dbname: ayaneru
