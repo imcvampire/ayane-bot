@@ -40,3 +40,7 @@ class Quote:
             return "Not found"
         else:
             return map(quote_info, quotes)
+
+    def delete_quote(self, qid):
+        self.db_cur.execute("DELETE FROM quotes WHERE id=%s" % qid)
+        self.db_conn.commit()

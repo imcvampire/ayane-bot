@@ -119,6 +119,16 @@ def randomquote(bot, update, args):
 
     bot.send_message(chat_id=update.message.chat_id, text=q.random_quote(author))
 
+def deletequote(bot, update, args):
+    q = Quote(DB_CONN, DB_CUR)
+    if len(args) == 0:
+        bot.send_message(chat_id=update.message.chat_id, text="ERROR: /deletequote id")
+        return
+    else:
+        qid = args[0]
+        q.delete_quote(qid)
+        bot.send_message(chat_id=update.message.chat_id, text="Done.")
+
 
 if __name__ == '__main__':
     # Create the EventHandler and pass bot's token
@@ -135,6 +145,7 @@ if __name__ == '__main__':
     dispatcher.add_handler(CommandHandler('addquote', addquote))
     dispatcher.add_handler(CommandHandler('listquotes', listquotes, pass_args=True))
     dispatcher.add_handler(CommandHandler('randomquote', randomquote, pass_args=True))
+    dispatcher.add_handler(CommandHandler('deletequote', deletequote, pass_args=True))
 
     # Message Handler
     dispatcher.add_handler(MessageHandler(Filters.text, response))
