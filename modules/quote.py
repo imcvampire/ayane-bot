@@ -8,9 +8,9 @@ class Quote:
         self.db_cur = db_cur
 
 
-    def add_quote(self, author, content):
-        self.db_cur.execute("INSERT INTO quotes (author, content, created_at) VALUES (%s, %s, CURRENT_TIME);",
-                            (author, content))
+    def add_quote(self, author, content, creator):
+        self.db_cur.execute("INSERT INTO quotes (author, content, creator, created_at) VALUES (%s, %s, %s, CURRENT_TIME);",
+                            (author, content, creator))
         self.db_conn.commit()
 
     def latest_quote(self):

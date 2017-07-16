@@ -92,7 +92,7 @@ def response(bot, update):
             history.remember(update.message.text, flag)
             flag = None
 
-            q.add_quote(author, update.message.text)
+            q.add_quote(author, update.message.text, update.message.from)
             bot.send_message(chat_id=update.message.chat_id, text=q.latest_quote(), parse_mode=telegram.ParseMode.MARKDOWN)
             return
 

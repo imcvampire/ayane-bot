@@ -9,5 +9,6 @@ CREATE TABLE IF NOT EXISTS quotes (
     id serial NOT NULL PRIMARY KEY,
     author text NOT NULL,
     content text NOT NULL,
+    creator text NOT NULL,
     created_at time NOT NULL
 );
