@@ -124,7 +124,7 @@ def listquotes(bot, update, args):
     if len(args) == 0:
         author = None
     else:
-        author = args[0]
+        author = " ".join(args)
 
     bot.send_message(chat_id=update.message.chat_id, text=q.list_quotes(author), parse_mode=telegram.ParseMode.MARKDOWN)
 
@@ -133,7 +133,7 @@ def randomquote(bot, update, args):
     if len(args) == 0:
         author = None
     else:
-        author = args[0]
+        author = " ".join(args)
 
     bot.send_message(chat_id=update.message.chat_id, text=q.random_quote(author), parse_mode=telegram.ParseMode.MARKDOWN)
 
